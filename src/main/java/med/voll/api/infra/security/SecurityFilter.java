@@ -4,7 +4,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import med.voll.api.domain.users.UsuarioRepository;
+import med.voll.api.domain.usuarios.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,15 +23,16 @@ public class SecurityFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-
-        var authHeader = request.getHeader("Authorization");//.replace("Bearer", "");
-        if(authHeader != null){
-        var token = authHeader.replace("Bearer", "");
-        var subject = tokenService.getSubject(token);
-            if(subject != null){
-                var usuario = usuarioRepository.findByLogin(subject);
+        // Obtener el token del header
+        var authHeader = request.getHeader("Authorization");
+        if (authHeader != null) {
+            var token = authHeader.replace("Bearer ", "");
+            var nombreUsuario = tokenService.getSubject(token); // extract username
+            if (nombreUsuario != null) {
+                // Token valido
+               var usuario = usuarioRepository.findByLogin(nombreUsuario);
                 var authentication = new UsernamePasswordAuthenticationToken(usuario, null,
-                        usuario.getAuthorities()); //Forzar inicio de session
+                        usuario.getAuthorities()); // Forzamos un inicio de sesion
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         }

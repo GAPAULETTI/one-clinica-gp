@@ -21,18 +21,30 @@ public class SecurityConfiguration {
     @Autowired
     private SecurityFilter securityFilter;
 
+    //código omitido
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        return http.csrf().disable()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and().authorizeHttpRequests()
+                .requestMatchers(HttpMethod.POST, "/login").permitAll()
+                .requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
+                .anyRequest().authenticated()
+                .and().addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
+                .build();
 
-            return http.csrf().disable()
+//código omitido
+
+           /* return http.csrf().disable()
                     .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                    .and().authorizeHttpRequests()
+                    .and().authorizeHttpRequests((authorizeHttpRequest) -> authorizeHttpRequest
                     .requestMatchers(HttpMethod.POST, "/login").permitAll()
                     .requestMatchers(HttpMethod.DELETE, "/medicos").hasRole("ADMIN")
                     .requestMatchers(HttpMethod.DELETE, "/pacientes").hasRole("ADMIN")
-                    .anyRequest().authenticated()
-                    .and().addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
-                    .build();
+                    .anyRequest().authenticated().and()
+                    .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class))
+                    .build();*/
 
         /*return http.csrf().disable()
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
